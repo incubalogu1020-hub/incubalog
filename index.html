@@ -1,0 +1,2127 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>INCUBALOG v3</title>
+<link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080c10;
+  --s1: #0d1520;
+  --s2: #111d2e;
+  --s3: #162035;
+  --border: #1e3048;
+  --border2: #243a58;
+  --accent: #00e5a0;
+  --accent-dim: rgba(0,229,160,0.12);
+  --blue: #2196f3;
+  --blue-dim: rgba(33,150,243,0.12);
+  --warn: #ff9800;
+  --warn-dim: rgba(255,152,0,0.12);
+  --danger: #f44336;
+  --danger-dim: rgba(244,67,54,0.12);
+  --ok: #00e5a0;
+  --text: #dce8f5;
+  --muted: #4a6280;
+  --muted2: #6a82a0;
+  --mono: 'Oxanium', monospace;
+  --sans: 'Inter', sans-serif;
+  --radius: 10px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+  overflow-x: hidden;
+  font-size: 14px;
+}
+
+/* Scanline overlay */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+  pointer-events: none; z-index: 9999;
+}
+
+/* Grid bg */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(0,229,160,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,229,160,0.025) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none; z-index: 0;
+}
+
+.app { position: relative; z-index: 1; max-width: 600px; margin: 0 auto; padding: 12px 14px 80px; }
+
+/* ── HEADER ── */
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 0 18px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 18px;
+}
+.logo { display: flex; align-items: center; gap: 10px; }
+.logo-icon {
+  width: 40px; height: 40px;
+  background: linear-gradient(135deg, #00e5a0, #2196f3);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 11px; font-weight: 800;
+  color: #000; letter-spacing: 1px;
+}
+.logo-name { font-family: var(--mono); font-size: 18px; font-weight: 700; letter-spacing: 3px; }
+.logo-ver { font-size: 10px; color: var(--muted); letter-spacing: 2px; margin-top: 1px; }
+.header-clock { text-align: right; }
+.clock-time { font-family: var(--mono); font-size: 20px; font-weight: 600; color: var(--accent); }
+.clock-date { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* ── SECTION LABEL ── */
+.sec-label {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 3px;
+  color: var(--muted); text-transform: uppercase;
+  display: flex; align-items: center; gap: 8px;
+  margin: 18px 0 10px;
+}
+.sec-label::before { content: ''; flex: 0 0 16px; height: 1px; background: var(--border2); }
+.sec-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* ── CARD ── */
+.card {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+/* ── SETUP PANEL ── */
+.setup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.setup-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-size: 10px; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; font-family: var(--mono); }
+.field select, .field input {
+  background: var(--s2); border: 1px solid var(--border2);
+  border-radius: 7px; color: var(--text);
+  padding: 9px 10px; font-family: var(--mono); font-size: 13px;
+  outline: none; transition: border-color 0.2s; -webkit-appearance: none;
+  width: 100%;
+}
+.field select:focus, .field input:focus { border-color: var(--accent); }
+
+/* cycle badge */
+.cycle-badge {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--accent-dim); border: 1px solid rgba(0,229,160,0.25);
+  border-radius: var(--radius); padding: 12px 16px;
+  margin-bottom: 12px;
+}
+.cycle-info { display: flex; flex-direction: column; gap: 2px; }
+.cycle-main { font-family: var(--mono); font-size: 13px; color: var(--accent); font-weight: 600; }
+.cycle-sub { font-size: 11px; color: var(--muted2); }
+.cycle-edit { font-size: 11px; color: var(--muted); cursor: pointer; text-decoration: underline; font-family: var(--mono); }
+.cycle-edit:hover { color: var(--accent); }
+
+/* ── PHOTO AREA ── */
+.photo-area {
+  border: 2px dashed var(--border2); border-radius: var(--radius);
+  position: relative; overflow: hidden; cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  min-height: 140px; display: flex; align-items: center; justify-content: center;
+}
+.photo-area:hover { border-color: var(--accent); background: var(--accent-dim); }
+.photo-area input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+.photo-placeholder { text-align: center; padding: 24px; pointer-events: none; }
+.photo-icon { font-size: 36px; margin-bottom: 8px; }
+.photo-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.photo-hint { font-size: 11px; color: var(--muted); }
+.preview-wrap { position: relative; width: 100%; }
+.preview-img { width: 100%; display: block; border-radius: 8px; max-height: 260px; object-fit: cover; }
+.preview-clear {
+  position: absolute; top: 8px; right: 8px;
+  background: rgba(0,0,0,0.7); border: 1px solid var(--border2);
+  border-radius: 6px; color: var(--text); font-size: 11px;
+  padding: 4px 10px; cursor: pointer; font-family: var(--mono);
+}
+
+/* ── BUTTONS ── */
+.btn {
+  width: 100%; padding: 13px 16px; border-radius: var(--radius);
+  border: none; font-family: var(--mono); font-size: 12px;
+  font-weight: 700; letter-spacing: 1.5px; cursor: pointer;
+  transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn:active { transform: scale(0.98); }
+.btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.btn-primary { background: linear-gradient(135deg, var(--accent), var(--blue)); color: #000; }
+.btn-primary:hover:not(:disabled) { opacity: 0.9; }
+.btn-secondary { background: var(--s2); border: 1px solid var(--border2); color: var(--text); }
+.btn-secondary:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.btn-save { background: var(--s2); border: 1px solid var(--accent); color: var(--accent); }
+.btn-save:hover:not(:disabled) { background: var(--accent-dim); }
+
+/* ── LOADING ── */
+.loading { display: none; align-items: center; justify-content: center; gap: 10px; padding: 14px; color: var(--accent); font-family: var(--mono); font-size: 12px; }
+.spinner { width: 18px; height: 18px; border: 2px solid rgba(0,229,160,0.2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── DATA EXTRACTED PANEL ── */
+.extracted { display: none; }
+
+/* Grid of reading cards */
+.reading-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+.r-card {
+  background: var(--s2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 10px 8px;
+  position: relative; transition: border-color 0.2s;
+  border-left: 3px solid var(--border);
+}
+.r-card.ok { border-left-color: var(--accent); }
+.r-card.warn1 { border-left-color: #ffeb3b; background: rgba(255,235,59,0.06); }
+.r-card.warn2 { border-left-color: var(--warn); background: var(--warn-dim); }
+.r-card.crit { border-left-color: var(--danger); background: var(--danger-dim); }
+
+.r-label { font-size: 9px; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; font-family: var(--mono); margin-bottom: 4px; }
+.r-val { font-family: var(--mono); font-size: 22px; font-weight: 700; line-height: 1; }
+.r-val.ok { color: var(--accent); }
+.r-val.warn1 { color: #ffeb3b; }
+.r-val.warn2 { color: var(--warn); }
+.r-val.crit { color: var(--danger); }
+.r-val.neutral { color: var(--text); }
+.r-sp { font-size: 10px; color: var(--muted2); margin-top: 3px; font-family: var(--mono); }
+.r-dev { font-size: 10px; font-family: var(--mono); margin-top: 2px; }
+.r-dev.pos { color: var(--danger); }
+.r-dev.neg { color: var(--blue); }
+.r-dev.zero { color: var(--accent); }
+.r-icon { position: absolute; top: 8px; right: 8px; font-size: 13px; }
+
+/* Edit input overlay */
+.r-edit { width: 100%; background: transparent; border: none; border-bottom: 1px solid var(--border2); color: var(--text); font-family: var(--mono); font-size: 16px; padding: 2px 0; outline: none; margin-top: 2px; }
+.r-edit:focus { border-color: var(--accent); }
+
+/* Cycle info from photo */
+.photo-meta {
+  display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;
+}
+.meta-chip {
+  background: var(--blue-dim); border: 1px solid rgba(33,150,243,0.25);
+  border-radius: 100px; padding: 4px 12px;
+  font-family: var(--mono); font-size: 11px; color: var(--blue);
+}
+
+/* ── ALERT BANNER ── */
+.alert-banner {
+  border-radius: var(--radius); padding: 14px 16px;
+  margin-bottom: 12px; display: none;
+  animation: slideIn 0.3s ease;
+}
+@keyframes slideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+.alert-banner.show { display: block; }
+.alert-banner.level-crit { background: var(--danger-dim); border: 1px solid rgba(244,67,54,0.4); }
+.alert-banner.level-warn2 { background: var(--warn-dim); border: 1px solid rgba(255,152,0,0.4); }
+.alert-banner.level-warn1 { background: rgba(255,235,59,0.06); border: 1px solid rgba(255,235,59,0.3); }
+.alert-title { font-family: var(--mono); font-size: 11px; letter-spacing: 2px; margin-bottom: 8px; font-weight: 700; }
+.alert-title.crit { color: var(--danger); }
+.alert-title.warn2 { color: var(--warn); }
+.alert-title.warn1 { color: #ffeb3b; }
+.alert-body { font-size: 12px; line-height: 1.7; }
+.alert-body.crit { color: #ffb3ae; }
+.alert-body.warn2 { color: #ffd180; }
+.alert-body.warn1 { color: #fff9c4; }
+
+/* Trend indicator */
+.trend-row {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; color: var(--muted2); margin-top: 6px;
+  font-family: var(--mono);
+}
+.trend-dot { width: 8px; height: 8px; border-radius: 50%; }
+.trend-dot.up { background: var(--danger); }
+.trend-dot.down { background: var(--blue); }
+.trend-dot.stable { background: var(--accent); }
+
+/* ── ACTION FIELD ── */
+.action-required-label { font-family: var(--mono); font-size: 10px; color: var(--warn); letter-spacing: 1.5px; margin-bottom: 8px; }
+.action-textarea {
+  width: 100%; background: var(--s2); border: 1px solid var(--border2);
+  border-radius: 8px; color: var(--text); font-family: var(--sans);
+  font-size: 13px; padding: 12px; resize: none; outline: none;
+  min-height: 80px; transition: border-color 0.2s; line-height: 1.5;
+}
+.action-textarea:focus { border-color: var(--warn); }
+.action-area { display: none; }
+
+/* ── HISTORY ── */
+.hist-toggle {
+  width: 100%; background: transparent; border: 1px solid var(--border);
+  border-radius: var(--radius); color: var(--muted2);
+  font-family: var(--mono); font-size: 10px; letter-spacing: 2px;
+  padding: 11px 14px; cursor: pointer; text-align: left;
+  display: flex; align-items: center; justify-content: space-between;
+  transition: all 0.2s;
+}
+.hist-toggle:hover { border-color: var(--border2); color: var(--text); }
+.hist-list { display: none; margin-top: 10px; }
+.hist-item {
+  background: var(--s1); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 12px 14px; margin-bottom: 8px;
+  position: relative;
+}
+.hist-item.desvio { border-left: 3px solid var(--warn); }
+.hist-item.critico { border-left: 3px solid var(--danger); }
+.hist-item.ok { border-left: 3px solid var(--accent); }
+.hist-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 6px; }
+.hist-id { font-family: var(--mono); font-size: 10px; color: var(--muted2); }
+.hist-status { font-family: var(--mono); font-size: 9px; padding: 3px 8px; border-radius: 100px; letter-spacing: 1px; }
+.hist-status.ok { background: rgba(0,229,160,0.15); color: var(--accent); }
+.hist-status.desvio { background: rgba(255,152,0,0.15); color: var(--warn); }
+.hist-status.critico { background: rgba(244,67,54,0.15); color: var(--danger); }
+.hist-vals { font-size: 11px; color: var(--muted2); font-family: var(--mono); display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 4px; }
+.hist-val-chip { background: var(--s2); border-radius: 4px; padding: 2px 6px; }
+.hist-val-chip.dev { color: var(--warn); }
+.hist-action { font-size: 11px; color: var(--text); font-style: italic; border-top: 1px solid var(--border); padding-top: 6px; margin-top: 6px; }
+
+/* Timeline mini chart */
+.trend-chart { margin: 12px 0; }
+.trend-title { font-family: var(--mono); font-size: 9px; color: var(--muted); letter-spacing: 2px; margin-bottom: 8px; }
+.trend-canvas-wrap { overflow-x: auto; }
+canvas#trendCanvas { display: block; }
+
+.empty-state { text-align: center; padding: 28px; color: var(--muted); font-size: 12px; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(80px);
+  background: var(--accent); color: #000; font-family: var(--mono);
+  font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+  padding: 11px 24px; border-radius: 100px; z-index: 10000;
+  transition: transform 0.35s cubic-bezier(.34,1.56,.64,1);
+  white-space: nowrap; pointer-events: none;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* day counter strip */
+.day-strip {
+  display: flex; gap: 4px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 4px;
+  scrollbar-width: none;
+}
+.day-strip::-webkit-scrollbar { display: none; }
+.day-dot {
+  flex: 0 0 28px; height: 28px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 9px; font-weight: 700;
+  background: var(--s2); border: 1px solid var(--border); color: var(--muted);
+}
+.day-dot.has-data.ok { background: rgba(0,229,160,0.15); border-color: rgba(0,229,160,0.3); color: var(--accent); }
+.day-dot.has-data.warn { background: var(--warn-dim); border-color: rgba(255,152,0,0.3); color: var(--warn); }
+.day-dot.has-data.crit { background: var(--danger-dim); border-color: rgba(244,67,54,0.3); color: var(--danger); }
+.day-dot.current { border-color: var(--blue); color: var(--blue); }
+
+/* manual edit hint */
+.manual-hint { font-size: 10px; color: var(--muted); font-family: var(--mono); margin-top: 6px; text-align: center; }
+
+.viragem-pos-btn {
+  flex: 1; padding: 6px 4px;
+  background: var(--s2); border: 1px solid var(--border2);
+  border-radius: 6px; color: var(--muted2);
+  font-family: var(--mono); font-size: 12px; cursor: pointer;
+  transition: all 0.15s;
+}
+.viragem-pos-btn.active { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); }
+
+.mt8 { margin-top: 8px; }
+.mt12 { margin-top: 12px; }
+.gap8 { display: flex; flex-direction: column; gap: 8px; }
+
+@keyframes scanAnim {
+  0%   { top: 50px; }
+  50%  { top: 210px; }
+  100% { top: 50px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">IL</div>
+      <div>
+        <div class="logo-name">INCUBALOG</div>
+        <div class="logo-ver">UNIDADE 1020 · v3.1</div>
+      </div>
+    </div>
+    <div class="header-clock">
+      <div class="clock-time" id="clockTime">--:--</div>
+      <div class="clock-date" id="clockDate">---</div>
+      <div id="apiKeyStatus" style="font-size:9px;font-family:var(--mono);margin-top:3px;text-align:right;cursor:pointer" onclick="promptChangeKey()"></div>
+    </div>
+  </div>
+
+  <!-- ── FASE 0: API KEY (uma vez só) ── -->
+  <div id="phaseApiKey" style="display:none">
+    <div class="sec-label">Configuração Inicial</div>
+    <div class="card">
+      <div style="font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:1px;margin-bottom:10px">🔑 CHAVE DE API ANTHROPIC</div>
+      <div style="font-size:12px;color:var(--muted2);line-height:1.6;margin-bottom:14px">
+        Para extrair dados das fotos automaticamente, informe sua API key da Anthropic.<br>
+        Ela será salva <strong style="color:var(--text)">somente neste dispositivo</strong> e nunca enviada a terceiros.<br><br>
+        Obtenha em: <span style="color:var(--accent);font-family:var(--mono)">console.anthropic.com → API Keys</span>
+      </div>
+      <div class="field" style="margin-bottom:12px">
+        <label>API Key</label>
+        <div style="position:relative">
+          <input type="password" id="cfgApiKey" placeholder="sk-ant-api03-..." autocomplete="off"
+            style="font-size:12px;letter-spacing:1px;padding-right:44px;"
+            onpaste="setTimeout(()=>validateKeyFormat(),50)">
+          <button onclick="toggleKeyVis()" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted2);cursor:pointer;font-size:14px;" id="keyVisBtn">👁</button>
+        </div>
+        <div id="keyFormatHint" style="font-size:10px;margin-top:4px;font-family:var(--mono);display:none"></div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-primary" style="flex:1" onclick="saveApiKey()">✓ SALVAR E CONTINUAR</button>
+        <button class="btn btn-secondary" style="flex:0 0 auto;padding:0 16px;font-size:10px" onclick="skipApiKey()">Pular →</button>
+      </div>
+      <div style="font-size:10px;color:var(--muted);margin-top:10px;font-family:var(--mono)">
+        Ao pular, a extração por IA ficará indisponível e os dados deverão ser preenchidos manualmente.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── FASE 1: SETUP DO CICLO (uma vez só) ── -->
+  <div id="phaseSetup">
+    <div class="sec-label">Configuração do Ciclo — Unidade 1020</div>
+    <div class="card">
+      <!-- Unidade fixa: 1020 (campo oculto) -->
+      <input type="hidden" id="cfgUnidade" value="1020">
+
+      <!-- QR Code scanner -->
+      <div style="margin-bottom:14px;">
+        <button class="btn btn-secondary" onclick="openQrScanner()" style="font-size:11px;padding:10px;gap:8px;">
+          <span style="font-size:18px">📷</span> ESCANEAR QR CODE DA MÁQUINA
+        </button>
+        <div style="font-size:10px;color:var(--muted);margin-top:5px;font-family:var(--mono);text-align:center">
+          Ou preencha manualmente abaixo
+        </div>
+      </div>
+
+      <!-- QR Scanner modal -->
+      <div id="qrModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9998;flex-direction:column;align-items:center;justify-content:center;">
+        <div style="color:var(--accent);font-family:var(--mono);font-size:13px;letter-spacing:2px;margin-bottom:16px;">APONTE PARA O QR CODE</div>
+        <div style="position:relative;width:280px;height:280px;border:2px solid var(--accent);border-radius:12px;overflow:hidden;">
+          <video id="qrVideo" style="width:100%;height:100%;object-fit:cover;" playsinline autoplay></video>
+          <!-- Scanner overlay -->
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;">
+            <div style="width:180px;height:180px;border:2px solid var(--accent);border-radius:8px;box-shadow:0 0 0 1000px rgba(0,0,0,0.4);"></div>
+          </div>
+          <!-- Scan line animation -->
+          <div id="scanLine" style="position:absolute;left:50px;right:50px;height:2px;background:var(--accent);opacity:0.8;animation:scanAnim 2s linear infinite;top:50px;"></div>
+        </div>
+        <div id="qrStatus" style="margin-top:16px;color:var(--muted2);font-size:12px;font-family:var(--mono);">Câmera iniciando...</div>
+        <button onclick="closeQrScanner()" class="btn btn-secondary" style="margin-top:16px;width:200px;font-size:11px;">✕ CANCELAR</button>
+      </div>
+
+      <div class="setup-grid">
+        <div class="field">
+          <label>Sala</label>
+          <select id="cfgSala" onchange="updateIncubadoraList(this.value)">
+            <option value="">Selecione</option>
+            <option value="1">Sala 1 — Inc. 01 a 18</option>
+            <option value="2">Sala 2 — Inc. 19 a 36</option>
+            <option value="3">Sala 3 — Inc. 37 a 54</option>
+            <option value="4">Sala 4 — Inc. 55 a 72</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Nº Incubadora</label>
+          <select id="cfgIncubadora">
+            <option value="">← Selecione a sala</option>
+          </select>
+        </div>
+      </div>
+      <div class="setup-grid mt8">
+        <div class="field">
+          <label>Programa</label>
+          <select id="cfgPrograma">
+            <option value="">Selecione</option>
+            <option value="PROG. LAVADOS MÁQ. VELHA">PROG. LAVADOS MÁQ. VELHA</option>
+            <option value="PROG. UNICO 31A 48 SEM.">PROG. UNICO 31A 48 SEM.</option>
+            <option value="PROG. UNICO 49 A 68 SEM.">PROG. UNICO 49 A 68 SEM.</option>
+            <option value="PROG. ÚNICO 25A30 SEM..">PROG. ÚNICO 25A30 SEM..</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Data de Início</label>
+          <input type="date" id="cfgDataInicio">
+        </div>
+      </div>
+      <div class="setup-grid three mt8">
+        <div class="field">
+          <label>Operador</label>
+          <input type="text" id="cfgOperador" placeholder="Nome">
+        </div>
+        <div class="field">
+          <label>Turno inicial</label>
+          <select id="cfgTurno">
+            <option value="06:00">1° Turno — 06:00</option>
+            <option value="12:00">1° Turno — 12:00</option>
+            <option value="18:00">2° Turno — 18:00</option>
+            <option value="00:00">2° Turno — 00:00</option>
+          </select>
+        </div>
+      </div>
+      <div class="mt12">
+        <div class="field" style="margin-bottom:10px">
+          <label>URL do Google Sheets (opcional)</label>
+          <input type="url" id="cfgSheetsUrl" placeholder="https://script.google.com/macros/s/..." autocomplete="off" style="font-size:11px;">
+          <div style="font-size:10px;color:var(--muted);margin-top:3px;font-family:var(--mono)">Cole a URL gerada no Apps Script após o deploy</div>
+        </div>
+        <button class="btn btn-primary" onclick="initCycle()">▶ INICIAR MONITORAMENTO DO CICLO</button>
+        <button class="btn btn-secondary mt8" onclick="gerarEtiquetasQR()" style="font-size:10px;padding:9px;">
+          🏷 GERAR ETIQUETAS QR CODE (72 INCUBADORAS)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── FASE 2: MONITORAMENTO ATIVO ── -->
+  <div id="phaseMonitor" style="display:none">
+
+    <!-- Cycle badge -->
+    <div class="cycle-badge">
+      <div class="cycle-info">
+        <div class="cycle-main" id="badgeMain">—</div>
+        <div class="cycle-sub" id="badgeSub">—</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+        <span class="cycle-edit" onclick="resetCycle()">↺ novo ciclo</span>
+        <select id="turnoLeitura" style="background:var(--s2);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:10px;padding:4px 8px;outline:none;">
+          <option value="06:00">1°T — 06:00</option>
+          <option value="12:00">1°T — 12:00</option>
+          <option value="18:00">2°T — 18:00</option>
+          <option value="00:00">2°T — 00:00</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Day strip -->
+    <div class="day-strip" id="dayStrip"></div>
+
+    <!-- Photo -->
+    <div class="sec-label">Foto da Leitura</div>
+    <div class="card" style="padding:12px">
+      <div class="photo-area" id="photoArea">
+        <input type="file" id="photoInput" accept="image/*" capture="environment" onchange="onPhoto(event)">
+        <div class="photo-placeholder" id="photoPlaceholder">
+          <div class="photo-icon">📷</div>
+          <div class="photo-title">Foto da tela da incubadora</div>
+          <div class="photo-hint">Toque para abrir câmera ou galeria</div>
+        </div>
+        <div class="preview-wrap" id="previewWrap" style="display:none">
+          <img class="preview-img" id="previewImg" alt="">
+          <span class="preview-clear" onclick="clearPhoto(event)">✕ remover</span>
+        </div>
+      </div>
+      <div class="mt8">
+        <button class="btn btn-primary" id="btnExtract" disabled onclick="extractWithAI()">
+          ⚡ EXTRAIR DADOS COM IA
+        </button>
+        <div class="loading" id="loading">
+          <div class="spinner"></div>
+          <span>IA analisando imagem...</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Extracted data -->
+    <div class="extracted" id="extractedSection">
+
+      <!-- Photo metadata -->
+      <div class="photo-meta" id="photoMeta"></div>
+
+      <!-- Alert banners -->
+      <div class="alert-banner" id="alertCrit">
+        <div class="alert-title crit">🔴 DESVIO CRÍTICO — AÇÃO IMEDIATA</div>
+        <div class="alert-body crit" id="alertCritBody"></div>
+      </div>
+      <div class="alert-banner" id="alertWarn2">
+        <div class="alert-title warn2">🟠 TENDÊNCIA DE DESVIO — ATENÇÃO</div>
+        <div class="alert-body warn2" id="alertWarn2Body"></div>
+        <div class="trend-row" id="trendRow36h"></div>
+      </div>
+      <div class="alert-banner" id="alertWarn1">
+        <div class="alert-title warn1">🟡 ATENÇÃO — MONITORAR PRÓXIMAS LEITURAS</div>
+        <div class="alert-body warn1" id="alertWarn1Body"></div>
+      </div>
+
+      <!-- Reading cards -->
+      <div class="sec-label">Valores Lidos</div>
+
+      <div class="reading-grid">
+        <div class="r-card" id="card_embr">
+          <div class="r-label">T. Embrião</div>
+          <input class="r-edit" id="edit_embr" type="number" step="0.1" placeholder="—" oninput="onManualEdit('embr')">
+          <div class="r-sp" id="sp_embr">SP —</div>
+          <div class="r-dev" id="dev_embr"></div>
+          <div class="r-icon" id="icon_embr"></div>
+        </div>
+        <div class="r-card" id="card_ar">
+          <div class="r-label">T. Ar</div>
+          <input class="r-edit" id="edit_ar" type="number" step="0.1" placeholder="—" oninput="onManualEdit('ar')">
+          <div class="r-sp" id="sp_ar">SP —</div>
+          <div class="r-dev" id="dev_ar"></div>
+          <div class="r-icon" id="icon_ar"></div>
+        </div>
+        <div class="r-card" id="card_co2">
+          <div class="r-label">CO₂ %</div>
+          <input class="r-edit" id="edit_co2" type="number" step="0.01" placeholder="—" oninput="onManualEdit('co2')">
+          <div class="r-sp" id="sp_co2">SP —</div>
+          <div class="r-dev" id="dev_co2"></div>
+          <div class="r-icon" id="icon_co2"></div>
+        </div>
+        <div class="r-card" id="card_umid">
+          <div class="r-label">Umidade °F</div>
+          <input class="r-edit" id="edit_umid" type="number" step="0.1" placeholder="—" oninput="onManualEdit('umid')">
+          <div class="r-sp" id="sp_umid">SP —</div>
+          <div class="r-dev" id="dev_umid"></div>
+          <div class="r-icon" id="icon_umid"></div>
+        </div>
+        <div class="r-card" id="card_vent">
+          <div class="r-label">Ventilação %</div>
+          <input class="r-edit" id="edit_vent" type="number" step="1" placeholder="—" oninput="onManualEdit('vent')">
+          <div class="r-sp" id="sp_vent">SP —</div>
+          <div class="r-dev" id="dev_vent"></div>
+          <div class="r-icon" id="icon_vent"></div>
+        </div>
+        <div class="r-card" id="card_ciclo">
+          <div class="r-label">Dia / Hora</div>
+          <input class="r-edit" id="edit_dia_foto" type="text" placeholder="ex: 14d 14h" style="font-size:13px">
+          <div class="r-sp" id="sp_ciclo" style="color:var(--blue)">da máquina</div>
+          <div class="r-icon">🕐</div>
+        </div>
+      </div>
+
+      <!-- Viragem block — full width card -->
+      <div class="card" id="card_viragem" style="margin-top:4px; border-left: 3px solid var(--blue);">
+        <div class="r-label" style="margin-bottom:10px">↕ VIRAGEM</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:10px; align-items:start;">
+          <div>
+            <div class="r-label">Posição atual</div>
+            <div style="display:flex;gap:6px;margin-top:4px;">
+              <button class="viragem-pos-btn" id="vbtn_A" onclick="setViragPos('A')">∧ A</button>
+              <button class="viragem-pos-btn" id="vbtn_V" onclick="setViragPos('V')">∨ V</button>
+            </div>
+          </div>
+          <div>
+            <div class="r-label">Tempo p/ viragem</div>
+            <input class="r-edit" id="edit_vir_falta" type="number" placeholder="min" style="margin-top:4px; font-size:16px; width:100%;">
+          </div>
+          <div>
+            <div class="r-label">Prog A | V (min)</div>
+            <input class="r-edit" id="edit_vir_prog" type="text" placeholder="30 | 30" style="margin-top:4px; font-size:13px; width:100%;">
+          </div>
+          <div>
+            <div class="r-label">Nº viragens ciclo</div>
+            <input class="r-edit" id="edit_vir_total" type="text" placeholder="#00197" style="margin-top:4px; font-size:13px; width:100%;">
+          </div>
+        </div>
+      </div>
+
+      <div class="manual-hint">Toque em qualquer valor para corrigir manualmente</div>
+
+      <!-- Trend mini chart -->
+      <div class="trend-chart" id="trendChartWrap" style="display:none">
+        <div class="trend-title">HISTÓRICO T. EMBRIÃO — ÚLTIMAS LEITURAS</div>
+        <div class="trend-canvas-wrap">
+          <canvas id="trendCanvas" height="70"></canvas>
+        </div>
+      </div>
+
+      <!-- Action area -->
+      <div class="action-area" id="actionArea">
+        <div class="sec-label">Registro de Ação</div>
+        <div class="card">
+          <div class="action-required-label">⚠ DESVIO DETECTADO — DESCREVA A AÇÃO TOMADA</div>
+          <textarea class="action-textarea" id="actionText"
+            placeholder="Ex: Sensor P3 com leitura elevada. Verifiquei flap de ventilação na zona 2 — estava parcialmente fechado. Corrigi abertura. Próxima leitura às 09h..."></textarea>
+        </div>
+      </div>
+
+      <div class="mt8">
+        <button class="btn btn-save" id="btnSave" onclick="saveReading()">
+          ✓ REGISTRAR LEITURA
+        </button>
+      </div>
+
+    </div>
+
+    <!-- HISTÓRICO -->
+    <div class="sec-label" style="margin-top:24px">Histórico do Ciclo</div>
+
+    <!-- Sheets + Export controls -->
+    <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+      <div id="sheetsStatus" style="flex:1;min-width:160px;background:var(--s1);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--mono);font-size:10px;display:flex;align-items:center;gap:8px;">
+        <span id="sheetsStatusDot" style="width:8px;height:8px;border-radius:50%;background:var(--muted);flex-shrink:0"></span>
+        <span id="sheetsStatusText" style="color:var(--muted2)">Google Sheets não configurado</span>
+      </div>
+      <button class="btn btn-secondary" style="flex:0 0 auto;padding:8px 14px;font-size:10px" onclick="exportExcel()">⬇ Excel</button>
+      <button class="btn btn-secondary" style="flex:0 0 auto;padding:8px 14px;font-size:10px" onclick="exportCSV()">⬇ CSV</button>
+    </div>
+
+    <button class="hist-toggle" onclick="toggleHistory()">
+      <span>LEITURAS REGISTRADAS</span>
+      <span id="histCountLabel">0 registros</span>
+    </button>
+    <div class="hist-list" id="histList"></div>
+
+  </div><!-- /phaseMonitor -->
+
+</div><!-- /app -->
+
+<div class="toast" id="toast">✓ Leitura registrada</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════
+let cycle = JSON.parse(localStorage.getItem('il_cycle') || 'null');
+let readings = JSON.parse(localStorage.getItem('il_readings') || '[]');
+let currentExtracted = null;
+let hasDeviation = false;
+let highestAlertLevel = 0; // 0=ok,1=warn1,2=warn2,3=crit
+
+// ══════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════
+function init() {
+  updateClock();
+  setInterval(updateClock, 1000);
+  const today = new Date().toISOString().split('T')[0];
+  const dataEl = document.getElementById('cfgDataInicio');
+  if (dataEl) dataEl.value = today;
+  updateApiKeyStatus();
+
+  // Listener para sala → incubadora
+  const salaEl = document.getElementById('cfgSala');
+  if (salaEl) salaEl.addEventListener('change', updateIncubadoraList);
+
+  const apiKey = localStorage.getItem('il_apikey');
+  if (!apiKey) {
+    document.getElementById('phaseApiKey').style.display = 'block';
+    document.getElementById('phaseSetup').style.display = 'none';
+    document.getElementById('phaseMonitor').style.display = 'none';
+  } else if (cycle) {
+    showMonitorPhase();
+  } else {
+    document.getElementById('phaseApiKey').style.display = 'none';
+    document.getElementById('phaseSetup').style.display = 'block';
+  }
+}
+
+function toggleKeyVis() {
+  const inp = document.getElementById('cfgApiKey');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+function validateKeyFormat() {
+  const val = document.getElementById('cfgApiKey').value.trim();
+  const hint = document.getElementById('keyFormatHint');
+  if (!val) { hint.style.display = 'none'; return; }
+  hint.style.display = 'block';
+  if (val.startsWith('sk-ant-')) {
+    hint.textContent = '✓ Formato válido — clique em Salvar para validar';
+    hint.style.color = 'var(--accent)';
+  } else if (val.startsWith('sk-')) {
+    hint.textContent = '~ Formato reconhecido';
+    hint.style.color = 'var(--warn)';
+  } else {
+    hint.textContent = '✗ Formato incorreto — deve começar com sk-ant-';
+    hint.style.color = 'var(--danger)';
+  }
+}
+
+async function saveApiKey() {
+  const key = document.getElementById('cfgApiKey').value.trim();
+  if (!key.startsWith('sk-')) {
+    alert('Chave inválida. Deve começar com "sk-ant-..."'); return;
+  }
+  const btn = document.querySelector('#phaseApiKey .btn-primary');
+  btn.disabled = true;
+  btn.textContent = '⏳ Validando chave...';
+
+  const ok = await testApiKey(key);
+  if (!ok) {
+    btn.disabled = false;
+    btn.textContent = '✓ SALVAR E CONTINUAR';
+    return;
+  }
+  localStorage.setItem('il_apikey', key);
+  updateApiKeyStatus();
+  document.getElementById('phaseApiKey').style.display = 'none';
+  document.getElementById('phaseSetup').style.display = 'block';
+  btn.disabled = false;
+  btn.textContent = '✓ SALVAR E CONTINUAR';
+}
+
+async function testApiKey(key) {
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": key,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 10,
+        messages: [{ role: "user", content: "ok" }]
+      })
+    });
+    if (res.status === 200) return true;
+    const err = await res.json().catch(() => ({}));
+    const msg = err?.error?.message || `Erro HTTP ${res.status}`;
+    alert(`❌ Chave inválida ou sem saldo:\n${msg}\n\nVerifique a key e tente novamente.`);
+    return false;
+  } catch(e) {
+    alert(`❌ Erro de conexão ao validar: ${e.message}`);
+    return false;
+  }
+}
+
+function skipApiKey() {
+  localStorage.setItem('il_apikey', '');
+  updateApiKeyStatus();
+  document.getElementById('phaseApiKey').style.display = 'none';
+  document.getElementById('phaseSetup').style.display = 'block';
+}
+
+function updateApiKeyStatus() {
+  const key = localStorage.getItem('il_apikey');
+  const el = document.getElementById('apiKeyStatus');
+  if (!el) return;
+  if (key && key.startsWith('sk-')) {
+    el.textContent = '🔑 IA ativa';
+    el.style.color = 'var(--accent)';
+  } else {
+    el.textContent = '🔑 sem key';
+    el.style.color = 'var(--muted)';
+  }
+}
+
+async function promptChangeKey() {
+  const newKey = prompt('Informe a nova API Key Anthropic (sk-ant-...):');
+  if (!newKey) return;
+  const key = newKey.trim();
+  if (!key.startsWith('sk-')) { alert('Chave inválida.'); return; }
+  const ok = await testApiKey(key);
+  if (!ok) return;
+  localStorage.setItem('il_apikey', key);
+  updateApiKeyStatus();
+  showToast('✓ API Key validada e salva');
+}
+
+function updateIncubadoraList(salaVal) {
+  var sala = salaVal || '';
+  if (!sala) {
+    var el = document.getElementById('cfgSala');
+    if (el) sala = el.value;
+  }
+  var sel = document.getElementById('cfgIncubadora');
+  if (!sel) return;
+
+  // Limpa opções existentes
+  while (sel.options.length > 0) sel.remove(0);
+
+  // Opção padrão
+  var def = document.createElement('option');
+  def.value = '';
+  def.textContent = 'Selecione';
+  sel.appendChild(def);
+
+  if (!sala) return;
+
+  var ranges = {
+    '1': { start: 1,  end: 18 },
+    '2': { start: 19, end: 36 },
+    '3': { start: 37, end: 54 },
+    '4': { start: 55, end: 72 }
+  };
+
+  var r = ranges[sala];
+  if (!r) return;
+
+  for (var i = r.start; i <= r.end; i++) {
+    var num = i < 10 ? '0' + i : '' + i;
+    var opt = document.createElement('option');
+    opt.value = num;
+    opt.textContent = 'Inc. ' + num;
+    sel.appendChild(opt);
+  }
+}
+
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clockTime').textContent =
+    now.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+  document.getElementById('clockDate').textContent =
+    now.toLocaleDateString('pt-BR', {weekday:'short', day:'2-digit', month:'short'});
+}
+
+// ══════════════════════════════════════════════════════════════
+// CYCLE SETUP
+// ══════════════════════════════════════════════════════════════
+function initCycle() {
+  const unidade = '1020';
+  const sala = document.getElementById('cfgSala').value;
+  const inc = document.getElementById('cfgIncubadora').value;
+  const prog = document.getElementById('cfgPrograma').value;
+  const data = document.getElementById('cfgDataInicio').value;
+  const op = document.getElementById('cfgOperador').value.trim();
+  const turno = document.getElementById('cfgTurno').value;
+
+  if (!sala || !inc || !prog || !data) {
+    alert('Preencha Sala, Incubadora, Programa e Data de Início.'); return;
+  }
+
+  cycle = { unidade, sala, inc, prog, dataInicio: data,
+            operador: op || 'Operador', turno,
+            sheetsUrl: document.getElementById('cfgSheetsUrl').value.trim(),
+            createdAt: new Date().toISOString() };
+  readings = [];
+  localStorage.setItem('il_cycle', JSON.stringify(cycle));
+  localStorage.setItem('il_readings', JSON.stringify(readings));
+  showMonitorPhase();
+}
+
+function resetCycle() {
+  if (!confirm('Iniciar novo ciclo? O histórico atual será arquivado.')) return;
+  // Archive
+  const archive = JSON.parse(localStorage.getItem('il_archive') || '[]');
+  if (cycle) archive.push({ cycle, readings, archivedAt: new Date().toISOString() });
+  localStorage.setItem('il_archive', JSON.stringify(archive));
+  cycle = null; readings = [];
+  localStorage.removeItem('il_cycle');
+  localStorage.removeItem('il_readings');
+  document.getElementById('phaseSetup').style.display = 'block';
+  document.getElementById('phaseMonitor').style.display = 'none';
+}
+
+function showMonitorPhase() {
+  document.getElementById('phaseSetup').style.display = 'none';
+  document.getElementById('phaseMonitor').style.display = 'block';
+  updateBadge();
+  buildDayStrip();
+  updateHistCount();
+  // Init sheets status
+  setTimeout(() => {
+    if (cycle?.sheetsUrl) {
+      updateSheetsStatus('ok');
+      retryQueue();
+    } else {
+      updateSheetsStatus('none');
+    }
+  }, 300);
+}
+
+function updateBadge() {
+  if (!cycle) return;
+  const daysSince = Math.floor((Date.now() - new Date(cycle.dataInicio).getTime()) / 86400000);
+  document.getElementById('badgeMain').textContent =
+    `U1020 · Sala ${cycle.sala} · INC ${cycle.inc} · Dia ${daysSince}`;
+  document.getElementById('badgeSub').textContent =
+    `${cycle.prog} · Início: ${new Date(cycle.dataInicio).toLocaleDateString('pt-BR')} · ${cycle.operador}`;
+}
+
+function buildDayStrip() {
+  const strip = document.getElementById('dayStrip');
+  strip.innerHTML = '';
+  const today = Math.floor((Date.now() - new Date(cycle.dataInicio).getTime()) / 86400000);
+  // Summarize by day
+  const dayStatus = {};
+  readings.forEach(r => {
+    const d = r.dia_ciclo;
+    if (!dayStatus[d]) dayStatus[d] = 'ok';
+    if (r.alert_level === 3) dayStatus[d] = 'crit';
+    else if (r.alert_level === 2 && dayStatus[d] !== 'crit') dayStatus[d] = 'warn';
+    else if (r.alert_level === 1 && dayStatus[d] === 'ok') dayStatus[d] = 'warn';
+  });
+  for (let d = 0; d <= 18; d++) {
+    const dot = document.createElement('div');
+    dot.className = 'day-dot';
+    dot.textContent = d;
+    if (dayStatus[d]) { dot.classList.add('has-data', dayStatus[d]); }
+    if (d === today) dot.classList.add('current');
+    strip.appendChild(dot);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// PHOTO HANDLING
+// ══════════════════════════════════════════════════════════════
+function onPhoto(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    window._photoB64 = ev.target.result.split(',')[1];
+    window._photoMime = file.type;
+    document.getElementById('previewImg').src = ev.target.result;
+    document.getElementById('previewWrap').style.display = 'block';
+    document.getElementById('photoPlaceholder').style.display = 'none';
+    document.getElementById('btnExtract').disabled = false;
+    // Reset extracted section
+    document.getElementById('extractedSection').style.display = 'none';
+    hasDeviation = false; highestAlertLevel = 0;
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearPhoto(e) {
+  e.stopPropagation();
+  document.getElementById('photoInput').value = '';
+  document.getElementById('previewWrap').style.display = 'none';
+  document.getElementById('photoPlaceholder').style.display = 'block';
+  document.getElementById('btnExtract').disabled = true;
+  document.getElementById('extractedSection').style.display = 'none';
+  window._photoB64 = null;
+}
+
+// ══════════════════════════════════════════════════════════════
+// AI EXTRACTION
+// ══════════════════════════════════════════════════════════════
+async function extractWithAI() {
+  if (!window._photoB64) return;
+
+  document.getElementById('btnExtract').style.display = 'none';
+  document.getElementById('loading').style.display = 'flex';
+
+  const prompt = `Você é um sistema especializado em leitura de telas de incubadoras avícolas.
+
+Esta imagem mostra a tela principal de uma incubadora. Existem dois layouts possíveis:
+- LAYOUT A: Fundo escuro/preto, valores em rosa/vermelho/azul/amarelo/verde. Tempo do ciclo no canto inferior esquerdo no formato "DD HH MM'" (ex: "03 16 55'").
+- LAYOUT B: Blocos coloridos sólidos (rosa, vermelho, azul, verde, amarelo/dourado). Tempo mostrado como "DDd HHh MM'" (ex: "14d 14h 19'"). Programa visível em texto.
+
+ESTRUTURA DOS DADOS (igual nos dois layouts):
+- Bloco superior esquerdo (termômetro com círculo/ovo = Ovoscan): REAL grande colorido + SP abaixo em branco menor
+- Bloco médio esquerdo (termômetro simples): Temperatura Ar REAL + SP abaixo
+- Bloco médio centro (gota d'água): Umidade REAL em °F + SP abaixo
+- Bloco superior direito (CO₂/molécula): CO₂ REAL em % + SP abaixo
+- Bloco médio direito (hélice/ventilador): Ventilação REAL em % + SP range "min - max" abaixo
+- Tempo de ciclo: DD dias HH horas MM minutos
+- Programa: texto visível (ex: "PADRAO 49 A 68 SEM" ou truncado)
+
+BLOCO DE VIRAGEM (canto inferior direito da tela — quadro com ícone de bandejas):
+Leitura de cima para baixo dentro do bloco:
+  - Linha 1: dois números flanqueando o ícone de bandeja (ex: "30' [ícone] 30'" ou "60' [ícone] 60'") = tempo programado para virar posição A (esquerda) e posição V (direita), em minutos
+  - Linha 2: número central abaixo do ícone (ex: "8'" ou "5'") = minutos faltando para próxima viragem
+  - Linha 3: código começando com # (ex: "#00197") = contador total de viragens realizadas no ciclo
+  - Posição atual da viragem: identificar se o ícone de bandeja está inclinado para cima (posição A) ou para baixo (posição V). Se não for possível identificar, retornar null.
+
+IMPORTANTE: Vírgulas nas telas são separadores decimais (ex: "100,3" = 100.3). Apóstrofo (') indica minutos.
+
+Retorne SOMENTE JSON válido, sem markdown, sem texto extra:
+{
+  "layout": "A" ou "B",
+  "temp_embr_real": número ou null,
+  "temp_embr_sp": número ou null,
+  "temp_ar_real": número ou null,
+  "temp_ar_sp": número ou null,
+  "umidade_real": número ou null,
+  "umidade_sp": número ou null,
+  "co2_real": número ou null,
+  "co2_sp": número ou null,
+  "ventilacao_real": número ou null,
+  "ventilacao_sp_min": número ou null,
+  "ventilacao_sp_max": número ou null,
+  "ciclo_dias": número inteiro ou null,
+  "ciclo_horas": número inteiro ou null,
+  "ciclo_minutos": número inteiro ou null,
+  "programa": string ou null,
+  "num_lote": string ou null,
+  "viragem_pos_atual": "A" ou "V" ou null,
+  "viragem_minutos_faltando": número inteiro ou null,
+  "viragem_prog_A_min": número inteiro ou null,
+  "viragem_prog_V_min": número inteiro ou null,
+  "viragem_total_ciclo": string ou null,
+  "confianca": "alta" ou "media" ou "baixa"
+}`;
+
+  const apiKey = localStorage.getItem('il_apikey') || '';
+  if (!apiKey) {
+    showApiError('API Key não configurada. Clique em "🔑 sem key" no cabeçalho para adicionar.');
+    currentExtracted = {};
+    populateExtracted({});
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('btnExtract').style.display = 'flex';
+    return;
+  }
+
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 1024,
+        messages: [{
+          role: "user",
+          content: [
+            {
+              type: "image",
+              source: {
+                type: "base64",
+                media_type: window._photoMime || "image/jpeg",
+                data: window._photoB64
+              }
+            },
+            { type: "text", text: prompt }
+          ]
+        }]
+      })
+    });
+
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      const errMsg = errData?.error?.message || `HTTP ${res.status}`;
+      throw new Error(`API: ${errMsg}`);
+    }
+
+    const data = await res.json();
+
+    // Validate response structure
+    if (!data.content || !Array.isArray(data.content)) {
+      throw new Error('Resposta inesperada da API');
+    }
+
+    const raw = data.content
+      .filter(b => b.type === 'text')
+      .map(b => b.text)
+      .join('')
+      .replace(/```json\s*/g, '')
+      .replace(/```\s*/g, '')
+      .trim();
+
+    if (!raw) throw new Error('IA não retornou texto');
+
+    // Find the JSON object in the response
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('JSON não encontrado na resposta');
+
+    const parsed = JSON.parse(jsonMatch[0]);
+    currentExtracted = parsed;
+    clearApiError();
+    populateExtracted(parsed);
+
+  } catch(err) {
+    console.error('Erro extração IA:', err);
+    // Show error status but open fields for manual entry
+    showApiError(err.message);
+    currentExtracted = {};
+    populateExtracted({});
+  } finally {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('btnExtract').style.display = 'flex';
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// POPULATE & EVALUATE
+// ══════════════════════════════════════════════════════════════
+function populateExtracted(d) {
+  document.getElementById('extractedSection').style.display = 'block';
+
+  // Photo meta chips
+  const meta = document.getElementById('photoMeta');
+  meta.innerHTML = '';
+  if (d.ciclo_dias != null) addChip(meta, `📅 Dia ${d.ciclo_dias}  ${d.ciclo_horas ?? '--'}h ${d.ciclo_minutos ?? '--'}'`);
+  if (d.programa) addChip(meta, `📋 ${d.programa}`);
+  if (d.num_lote) addChip(meta, `🔢 ${d.num_lote}`);
+  if (d.layout) addChip(meta, `Layout ${d.layout}`);
+  if (d.viragem_total_ciclo) addChip(meta, `↕ ${d.viragem_total_ciclo} viragens`);
+  if (d.confianca) addChip(meta, d.confianca === 'alta' ? '✓ Alta confiança' : d.confianca === 'media' ? '~ Conf. média' : '⚠ Conf. baixa');
+
+  // Populate fields
+  setField('embr', d.temp_embr_real, d.temp_embr_sp, 0.1, '°F', true);
+  setField('ar', d.temp_ar_real, d.temp_ar_sp, 0.1, '°F', false);
+  setField('co2', d.co2_real, d.co2_sp, 0.05, '%', false);
+  setField('umid', d.umidade_real, d.umidade_sp, 1.0, '°F', false);
+  setField('vent', d.ventilacao_real, null, null, '%', false);
+
+  // Ventilation range label
+  if (d.ventilacao_sp_min != null && d.ventilacao_sp_max != null) {
+    document.getElementById('sp_vent').textContent = `SP ${d.ventilacao_sp_min}–${d.ventilacao_sp_max}%`;
+  }
+
+  // Cycle info from photo
+  if (d.ciclo_dias != null) {
+    document.getElementById('edit_dia_foto').value = `${d.ciclo_dias}d ${d.ciclo_horas ?? 0}h ${d.ciclo_minutos ?? 0}'`;
+  }
+
+  // Viragem
+  if (d.viragem_pos_atual) setViragPos(d.viragem_pos_atual);
+  if (d.viragem_minutos_faltando != null) document.getElementById('edit_vir_falta').value = d.viragem_minutos_faltando;
+  if (d.viragem_prog_A_min != null || d.viragem_prog_V_min != null) {
+    document.getElementById('edit_vir_prog').value = `${d.viragem_prog_A_min ?? '?'} | ${d.viragem_prog_V_min ?? '?'}`;
+  }
+  if (d.viragem_total_ciclo != null) document.getElementById('edit_vir_total').value = d.viragem_total_ciclo;
+
+  // Evaluate alerts
+  evaluateAlerts();
+  drawTrendChart();
+}
+
+function addChip(container, text) {
+  const c = document.createElement('span');
+  c.className = 'meta-chip';
+  c.textContent = text;
+  container.appendChild(c);
+}
+
+function setField(key, real, sp, tol, unit, isEmbriao) {
+  const editEl = document.getElementById('edit_' + key);
+  const spEl   = document.getElementById('sp_'   + key);
+  const devEl  = document.getElementById('dev_'  + key);
+  const cardEl = document.getElementById('card_' + key);
+  const iconEl = document.getElementById('icon_' + key);
+
+  if (real != null) editEl.value = real;
+  if (sp   != null) spEl.textContent = 'SP ' + sp + ' ' + unit;
+
+  if (real != null && sp != null && tol != null) {
+    const diff    = parseFloat((real - sp).toFixed(3));
+    const absDiff = Math.abs(diff);
+    const sign    = diff > 0 ? '+' : '';
+
+    devEl.className  = 'r-dev ' + (diff > 0 ? 'pos' : diff < 0 ? 'neg' : 'zero');
+    devEl.textContent = sign + diff.toFixed(2) + ' ' + unit;
+
+    // CO₂ usa lógica própria com tolerância ±0.03
+    // Umidade: só alerta se > 98°F, sem lógica de consecutivas
+    let level;
+    if (key === 'co2') {
+      const incNum     = parseInt(cycle?.inc) || 0;
+      const horasCiclo = currentExtracted?.ciclo_dias != null
+        ? (currentExtracted.ciclo_dias * 24) + (currentExtracted.ciclo_horas || 0)
+        : Math.floor((Date.now() - new Date(cycle?.dataInicio || Date.now()).getTime()) / 3600000);
+      level = getAlertLevelCo2(real, sp, incNum, horasCiclo);
+    } else if (key === 'umid') {
+      level = (parseFloat(real) > 98) ? 3 : 0;
+    } else {
+      level = getAlertLevel(key, real, sp, tol, isEmbriao);
+    }
+
+    cardEl.className  = 'r-card ' + (level===3?'crit':level===2?'warn2':level===1?'warn1':'ok');
+    iconEl.textContent = level===3?'🔴':level===2?'🟠':level===1?'🟡':'✅';
+  } else {
+    cardEl.className  = 'r-card';
+    iconEl.textContent = real == null ? '✏️' : '';
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// ALERT LOGIC (3 levels with consecutive readings)
+// ══════════════════════════════════════════════════════════════
+// ── CO₂ SP ESCALONADO Inc. 1-45 ──────────────────────────────
+function getCo2SpEscalonado(horasCiclo) {
+  if (horasCiclo < 12)  return 0.15;
+  if (horasCiclo < 36)  return 0.10;
+  if (horasCiclo < 60)  return 0.15;
+  return 0.30;
+}
+
+// ── ALERTA TEMPERATURA ────────────────────────────────────────
+function getAlertLevelTemp(key, real, sp) {
+  const diff = Math.abs(real - sp);
+  const spKey = key === 'embr' ? 'sp_embr' : 'sp_ar';
+  if (diff >= 0.3) return 3;
+  if (diff >= 0.2) {
+    const prev1 = readings.slice(-1);
+    if (prev1.length >= 1 && prev1[0][key] != null && prev1[0][spKey] != null
+        && Math.abs(prev1[0][key] - prev1[0][spKey]) >= 0.2) return 2;
+    return 2;
+  }
+  if (diff >= 0.1) {
+    const prev2 = readings.slice(-2);
+    if (prev2.length >= 2 && prev2.every(r =>
+        r[key] != null && r[spKey] != null && Math.abs(r[key] - r[spKey]) >= 0.1)) return 1;
+    return 0;
+  }
+  return 0;
+}
+
+// ── ALERTA CO₂ ────────────────────────────────────────────────
+// Tolerância ±0.03 entre real e SP (lido da foto ou escalonado Inc 1-45)
+// Fora da tolerância:
+//   🔴 Crítico imediato: desvio absoluto ≥ 0.07
+//   🟠 Tendência: fora da tolerância por 2 leituras consecutivas
+//   🟡 Atenção: fora da tolerância por 3 leituras consecutivas
+function getAlertLevelCo2(real, spFoto, incNum, horasCiclo) {
+  const TOL = 0.03;
+
+  // SP efetivo: Inc 1-45 usa escalonado nas primeiras 72h, depois usa SP da foto
+  const sp = (incNum >= 1 && incNum <= 45 && horasCiclo < 72)
+    ? getCo2SpEscalonado(horasCiclo)
+    : spFoto;
+
+  // Força conversão numérica e valida
+  const spNum   = parseFloat(sp);
+  const realNum = parseFloat(real);
+  if (isNaN(spNum) || isNaN(realNum)) return 0;
+
+  const diff = Math.abs(realNum - spNum);
+
+  // Dentro da tolerância → OK
+  if (diff <= TOL) return 0;
+
+  // Crítico imediato: desvio >= 0.05
+  if (diff >= 0.05) return 3;
+
+  // Checa leituras anteriores
+  function foraTolerancia(r) {
+    if (r.co2 == null) return false;
+    const hR = (r.dia_ciclo || 0) * 24 + (r.hora_ciclo || 0);
+    const spR = parseFloat((incNum >= 1 && incNum <= 45 && hR < 72)
+      ? getCo2SpEscalonado(hR)
+      : (r.sp_co2 || spFoto));
+    return !isNaN(spR) && Math.abs(parseFloat(r.co2) - spR) > TOL;
+  }
+
+  const prev2 = readings.slice(-2);
+  if (prev2.length >= 2 && prev2.every(foraTolerancia)) return 2;
+
+  const prev3 = readings.slice(-3);
+  if (prev3.length >= 3 && prev3.every(foraTolerancia)) return 1;
+
+  return 0;
+}
+
+function getAlertLevel(key, real, sp, tol, isEmbriao) {
+  return getAlertLevelTemp(key, real, sp);
+}
+
+function evaluateAlerts() {
+  const critItems = [], warn2Items = [], warn1Items = [];
+  let maxLevel = 0;
+
+  const incNum = parseInt(cycle?.inc) || 0;
+  const horasCiclo = currentExtracted?.ciclo_dias != null
+    ? (currentExtracted.ciclo_dias * 24) + (currentExtracted.ciclo_horas || 0)
+    : Math.floor((Date.now() - new Date(cycle?.dataInicio || Date.now()).getTime()) / 3600000);
+  const diaCiclo = currentExtracted?.ciclo_dias ?? Math.floor(horasCiclo / 24);
+
+  // ── T. EMBRIÃO ───────────────────────────────────────────
+  const embrVal = parseFloat(document.getElementById('edit_embr')?.value);
+  const embrSp  = getSP('embr');
+  if (!isNaN(embrVal) && embrSp != null) {
+    const lvl = getAlertLevelTemp('embr', embrVal, embrSp);
+    maxLevel = Math.max(maxLevel, lvl);
+    const diff = (embrVal - embrSp).toFixed(2);
+    const sign = diff > 0 ? '+' : '';
+    const msgBase = `• T. Embrião: ${embrVal}°F  (SP ${embrSp} | desvio ${sign}${diff}°F)`;
+    const msgAcao = embrVal > embrSp
+      ? ' — Temperatura do embrião elevada — risco de adiantamento da janela de nascimento. Verificar válvulas de água gelada se está passando água. Verificar range mínimo de temperatura do ar se está no limite inferior. Acionar manutenção.'
+      : ' — Temperatura do embrião abaixo do SP. Verificar aquecimento da máquina. Acionar manutenção.';
+    const msg = msgBase + (lvl > 0 ? msgAcao : '');
+    if (lvl === 3) critItems.push(msg);
+    else if (lvl === 2) warn2Items.push(msg);
+    else if (lvl === 1) warn1Items.push(msg);
+  }
+
+  // ── T. AR ────────────────────────────────────────────────
+  const arVal = parseFloat(document.getElementById('edit_ar')?.value);
+  const arSp  = getSP('ar');
+  if (!isNaN(arVal) && arSp != null) {
+    const lvl = getAlertLevelTemp('ar', arVal, arSp);
+    maxLevel = Math.max(maxLevel, lvl);
+    const diff = (arVal - arSp).toFixed(2);
+    const sign = diff > 0 ? '+' : '';
+    const msgBase = `• T. Ar: ${arVal}°F  (SP ${arSp} | desvio ${sign}${diff}°F)`;
+    const msgAcao = arVal > arSp
+      ? ' — Temperatura do ar elevada — risco de adiantamento da janela de nascimento. Verificar válvulas de água gelada se está passando água. Verificar range mínimo de temperatura do ar se está no limite inferior. Acionar manutenção.'
+      : ' — Temperatura do ar abaixo do SP. Verificar aquecimento da máquina. Acionar manutenção.';
+    const msg = msgBase + (lvl > 0 ? msgAcao : '');
+    if (lvl === 3) critItems.push(msg);
+    else if (lvl === 2) warn2Items.push(msg);
+    else if (lvl === 1) warn1Items.push(msg);
+  }
+
+  // ── CO₂ ──────────────────────────────────────────────────
+  const co2Val = parseFloat(document.getElementById('edit_co2')?.value);
+  const co2SpRaw = getSP('co2');
+  // Tenta múltiplas fontes para garantir que o SP seja lido
+  const co2Sp = co2SpRaw != null ? co2SpRaw
+    : (currentExtracted?.co2_sp != null ? currentExtracted.co2_sp : null);
+
+  if (!isNaN(co2Val)) {
+    const lvl = getAlertLevelCo2(co2Val, co2Sp, incNum, horasCiclo);
+    maxLevel = Math.max(maxLevel, lvl);
+
+    const spEfetivo = (incNum >= 1 && incNum <= 45 && horasCiclo < 72)
+      ? getCo2SpEscalonado(horasCiclo)
+      : (co2Sp ?? '—');
+    const spLabel = (incNum >= 1 && incNum <= 45 && horasCiclo < 72)
+      ? `${spEfetivo} (escalonado)`
+      : spEfetivo;
+    const diff    = typeof spEfetivo === 'number' ? (co2Val - spEfetivo).toFixed(3) : '—';
+    const sign    = parseFloat(diff) > 0 ? '+' : '';
+    const co2Acao = parseFloat(diff) < 0
+      ? ' — CO₂ baixo: excesso de ventilação / entrada de ar. Risco de perda de umidade em excesso, impacto na câmara de ar do ovo, qualidade pode ser comprometida. Acionar manutenção.'
+      : ' — CO₂ alto: falta de ventilação / entrada de ar. Risco de baixa perda de umidade, impacto na câmara de ar do ovo, qualidade pode ser comprometida. Acionar manutenção.';
+    const msg = `• CO₂: ${co2Val}%  (SP ${spLabel} | desvio ${sign}${diff}%)` + (lvl > 0 ? co2Acao : '');
+    if (lvl === 3) critItems.push(msg);
+    else if (lvl === 2) warn2Items.push(msg);
+    else if (lvl === 1) warn1Items.push(msg);
+
+  }
+
+  // ── UMIDADE ──────────────────────────────────────────────
+  const umidVal = parseFloat(document.getElementById('edit_umid')?.value);
+  if (!isNaN(umidVal) && umidVal > 98) {
+    maxLevel = Math.max(maxLevel, 3);
+    critItems.push(`• 💧 Umidade: ${umidVal}°F — EXCESSO DE UMIDADE. Abrir máquina e verificar possível vazamento de serpentina de água gelada. Acionar manutenção imediatamente.`);
+  }
+
+  // ── VENTILAÇÃO ───────────────────────────────────────────
+  const ventVal = parseFloat(document.getElementById('edit_vent')?.value);
+  if (!isNaN(ventVal) && ventVal >= 75) {
+    maxLevel = Math.max(maxLevel, 3);
+    critItems.push(`• 💨 Ventilação: ${ventVal}% — % de ventilação alto: excesso de ventilação / entrada de ar. Risco de perda de umidade em excesso, impacto na câmara de ar do ovo, desuniformidade de temperatura. Acionar manutenção.`);
+  }
+
+  // ── VIRAGEM PROPORCIONAL ──────────────────────────────────
+  // Esperado: 432 viragens em 18 dias = 24/dia
+  // Mínimo proporcional por hora: 432 / (18*24) = 1 viragem/hora
+  const viragTotalStr = document.getElementById('edit_vir_total')?.value || '';
+  const viragMatch = viragTotalStr.match(/#?(\d+)/);
+  if (viragMatch) {
+    const viragAtual = parseInt(viragMatch[1]);
+    const minEsperado = Math.floor(horasCiclo * 1); // 1 viragem/hora = 24/dia
+    if (horasCiclo > 0 && viragAtual < minEsperado) {
+      const deficit = minEsperado - viragAtual;
+      maxLevel = Math.max(maxLevel, 2);
+      warn2Items.push(`• ↕ Viragem insuficiente: ${viragAtual} realizadas — mínimo esperado ${minEsperado} (déficit: ${deficit}). Verificar funcionamento do sistema de viragem. Mínimo ao fim do ciclo: 432 viragens.`);
+    }
+  }
+
+  highestAlertLevel = maxLevel;
+  hasDeviation = maxLevel > 0;
+
+  renderBanner('alertCrit', critItems, 'level-crit', 'crit');
+  renderBanner('alertWarn2', warn2Items, 'level-warn2', 'warn2');
+  renderBanner('alertWarn1', warn1Items, 'level-warn1', 'warn1');
+
+  // Trend 36h para warn2
+  if (warn2Items.length > 0) {
+    const last36h = readings.filter(r => (Date.now() - new Date(r.timestamp).getTime()) / 3600000 <= 36);
+    const hadOk = last36h.some(r => r.embr != null && r.sp_embr != null && Math.abs(r.embr - r.sp_embr) < 0.2);
+    const trendEl = document.getElementById('trendRow36h');
+    if (trendEl) trendEl.innerHTML = hadOk
+      ? '<div class="trend-dot stable"></div> SP atingido nas últimas 36h — monitorar continuidade'
+      : '<div class="trend-dot up"></div> Sem retorno ao SP nas últimas 36h — intervenção necessária';
+  }
+
+  document.getElementById('actionArea').style.display = hasDeviation ? 'block' : 'none';
+}
+
+function renderBanner(id, items, cls, textCls) {
+  const el = document.getElementById(id);
+  const bodyId = id === 'alertCrit' ? 'alertCritBody' : id === 'alertWarn2' ? 'alertWarn2Body' : 'alertWarn1Body';
+  if (items.length > 0) {
+    el.className = `alert-banner show ${cls}`;
+    document.getElementById(bodyId).innerHTML = items.join('<br>');
+  } else {
+    el.className = 'alert-banner';
+  }
+}
+
+function showApiError(msg) {
+  let errBanner = document.getElementById('apiBanner');
+  if (!errBanner) {
+    errBanner = document.createElement('div');
+    errBanner.id = 'apiBanner';
+    errBanner.style.cssText = 'background:rgba(244,67,54,0.1);border:1px solid rgba(244,67,54,0.35);border-radius:10px;padding:12px 14px;margin-bottom:12px;font-family:var(--mono);font-size:11px;display:flex;align-items:flex-start;gap:10px;';
+    const sec = document.getElementById('extractedSection');
+    sec.insertBefore(errBanner, sec.firstChild);
+  }
+  errBanner.innerHTML = `<span style="font-size:16px;flex-shrink:0">⚠</span><div style="flex:1"><div style="color:#f44336;font-weight:700;margin-bottom:3px">IA não extraiu — preencha os campos manualmente</div><div style="color:#ff8a80;opacity:0.75;font-size:10px">${msg}</div></div><span onclick="this.parentElement.style.display='none'" style="cursor:pointer;color:var(--muted);font-size:14px;flex-shrink:0">✕</span>`;
+  errBanner.style.display = 'flex';
+}
+
+function clearApiError() {
+  const b = document.getElementById('apiBanner');
+  if (b) b.style.display = 'none';
+}
+
+function setViragPos(pos) {
+  window._viragPos = pos;
+  document.getElementById('vbtn_A').classList.toggle('active', pos === 'A');
+  document.getElementById('vbtn_V').classList.toggle('active', pos === 'V');
+}
+
+function getSP(key) {
+  const spEl = document.getElementById('sp_' + key);
+  if (!spEl) return null;
+  const text = spEl.textContent || '';
+  // Match SP value - handles "SP 0.4 %", "SP 0.40", "SP 100.2 °F" etc
+  const match = text.match(/SP\s*([\d]+\.?[\d]*)/);
+  if (!match) return null;
+  const val = parseFloat(match[1]);
+  return isNaN(val) ? null : val;
+}
+
+function onManualEdit(key) {
+  evaluateAlerts();
+}
+
+// ══════════════════════════════════════════════════════════════
+// TREND CHART
+// ══════════════════════════════════════════════════════════════
+function drawTrendChart() {
+  const embrReadings = readings.slice(-12).filter(r => r.embr != null);
+  if (embrReadings.length < 2) { document.getElementById('trendChartWrap').style.display = 'none'; return; }
+
+  document.getElementById('trendChartWrap').style.display = 'block';
+  const canvas = document.getElementById('trendCanvas');
+  const w = Math.min(window.innerWidth - 56, 560);
+  canvas.width = w; canvas.height = 70;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, w, 70);
+
+  const vals = embrReadings.map(r => r.embr);
+  const sps = embrReadings.map(r => r.sp_embr || 100.0);
+  const allVals = [...vals, ...sps];
+  const minV = Math.min(...allVals) - 0.2;
+  const maxV = Math.max(...allVals) + 0.2;
+  const range = maxV - minV;
+
+  const xStep = (w - 20) / (vals.length - 1);
+  const yScale = v => 60 - ((v - minV) / range) * 55;
+
+  // SP line
+  ctx.strokeStyle = 'rgba(0,229,160,0.4)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath();
+  sps.forEach((sp, i) => {
+    const x = 10 + i * xStep;
+    const y = yScale(sp);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Value line
+  ctx.strokeStyle = '#2196f3';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  vals.forEach((v, i) => {
+    const x = 10 + i * xStep;
+    const y = yScale(v);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+
+  // Dots
+  vals.forEach((v, i) => {
+    const x = 10 + i * xStep;
+    const y = yScale(v);
+    const sp = sps[i] || 100.0;
+    const dev = Math.abs(v - sp);
+    ctx.fillStyle = dev >= 0.3 ? '#f44336' : dev >= 0.2 ? '#ff9800' : dev >= 0.1 ? '#ffeb3b' : '#00e5a0';
+    ctx.beginPath();
+    ctx.arc(x, y, 3, 0, Math.PI * 2);
+    ctx.fill();
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+// SAVE READING
+// ══════════════════════════════════════════════════════════════
+function saveReading() {
+  if (hasDeviation && !document.getElementById('actionText').value.trim()) {
+    alert('Há desvios detectados. Descreva a ação tomada antes de registrar.');
+    document.getElementById('actionText').focus();
+    return;
+  }
+
+  const diaCiclo = currentExtracted?.ciclo_dias ?? Math.floor((Date.now() - new Date(cycle.dataInicio).getTime()) / 86400000);
+
+  const record = {
+    id: Date.now(),
+    timestamp: new Date().toISOString(),
+    turno_leitura: document.getElementById('turnoLeitura').value,
+    incubadora: cycle.inc,
+    programa: cycle.prog,
+    operador: cycle.operador,
+    dia_ciclo: diaCiclo,
+    hora_ciclo: currentExtracted?.ciclo_horas ?? null,
+    layout: currentExtracted?.layout ?? null,
+    num_lote: currentExtracted?.num_lote ?? null,
+    embr: parseFloat(document.getElementById('edit_embr').value) || null,
+    sp_embr: getSP('embr'),
+    ar: parseFloat(document.getElementById('edit_ar').value) || null,
+    sp_ar: getSP('ar'),
+    co2: parseFloat(document.getElementById('edit_co2').value) || null,
+    sp_co2: getSP('co2'),
+    umid: parseFloat(document.getElementById('edit_umid').value) || null,
+    sp_umid: getSP('umid'),
+    vent: parseFloat(document.getElementById('edit_vent').value) || null,
+    viragem_pos: window._viragPos ?? null,
+    viragem_falta_min: parseInt(document.getElementById('edit_vir_falta').value) || null,
+    viragem_prog: document.getElementById('edit_vir_prog').value || null,
+    viragem_total: document.getElementById('edit_vir_total').value || null,
+    alert_level: highestAlertLevel,
+    acao: document.getElementById('actionText').value.trim(),
+  };
+
+  readings.push(record);
+  localStorage.setItem('il_readings', JSON.stringify(readings));
+  updateHistCount();
+  buildDayStrip();
+  renderHistory();
+
+  // Send to Google Sheets (async, non-blocking)
+  sendToSheets(record);
+
+  showToast('✓ Leitura registrada');
+  resetReadingForm();
+}
+
+function resetReadingForm() {
+  clearPhoto({ stopPropagation: ()=>{} });
+  document.getElementById('extractedSection').style.display = 'none';
+  document.getElementById('actionText').value = '';
+  document.getElementById('photoInput').value = '';
+  document.getElementById('previewWrap').style.display = 'none';
+  document.getElementById('photoPlaceholder').style.display = 'block';
+  document.getElementById('edit_vir_falta').value = '';
+  document.getElementById('edit_vir_prog').value = '';
+  document.getElementById('edit_vir_total').value = '';
+  window._viragPos = null;
+  if (document.getElementById('vbtn_A')) { document.getElementById('vbtn_A').classList.remove('active'); document.getElementById('vbtn_V').classList.remove('active'); }
+  currentExtracted = null; hasDeviation = false; highestAlertLevel = 0;
+  document.getElementById('btnExtract').disabled = true;
+  ['alertCrit','alertWarn2','alertWarn1'].forEach(id => document.getElementById(id).className = 'alert-banner');
+}
+
+// ══════════════════════════════════════════════════════════════
+// GOOGLE SHEETS INTEGRATION
+// ══════════════════════════════════════════════════════════════
+async function sendToSheets(record) {
+  const url = cycle?.sheetsUrl;
+  if (!url) return;
+
+  updateSheetsStatus('sending');
+
+  const ts = new Date(record.timestamp);
+  const payload = {
+    unidade: cycle.unidade || '1020',
+    sala: cycle.sala || '',
+    incubadora: record.incubadora || cycle.inc,
+    data: ts.toLocaleDateString('pt-BR'),
+    hora: ts.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'}),
+    turno: record.turno_leitura || '',
+    dia_ciclo: record.dia_ciclo != null ? record.dia_ciclo : '',
+    hora_ciclo: record.hora_ciclo != null ? record.hora_ciclo : '',
+    operador: record.operador || cycle.operador || '',
+    programa: record.programa || cycle.prog || '',
+    num_lote: record.num_lote || '',
+    layout: record.layout || '',
+    embr: record.embr != null ? record.embr : '',
+    sp_embr: record.sp_embr != null ? record.sp_embr : '',
+    ar: record.ar != null ? record.ar : '',
+    sp_ar: record.sp_ar != null ? record.sp_ar : '',
+    co2: record.co2 != null ? record.co2 : '',
+    sp_co2: record.sp_co2 != null ? record.sp_co2 : '',
+    umid: record.umid != null ? record.umid : '',
+    sp_umid: record.sp_umid != null ? record.sp_umid : '',
+    vent: record.vent != null ? record.vent : '',
+    vent_sp_range: document.getElementById('sp_vent')?.textContent?.replace('SP ','') || '',
+    viragem_pos: record.viragem_pos || '',
+    viragem_falta_min: record.viragem_falta_min != null ? record.viragem_falta_min : '',
+    viragem_prog: record.viragem_prog || '',
+    viragem_total: record.viragem_total || '',
+    alert_level: record.alert_level || 0,
+    alert_descricao: buildAlertDescription(record),
+    acao: record.acao || '',
+    data_inicio_ciclo: cycle.dataInicio || '',
+    id: record.id || Date.now()
+  };
+
+  // Monta URL com parâmetros individuais — sobrevivem ao redirect do Google
+  const params = Object.keys(payload)
+    .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(payload[k]))
+    .join('&');
+  const getUrl = url + '?' + params;
+
+  try {
+    // fetch com redirect follow — segue o redirect do Google corretamente
+    const res = await fetch(getUrl, {
+      method: 'GET',
+      redirect: 'follow'
+    });
+    const text = await res.text();
+    console.log('Sheets resposta:', text);
+
+    try {
+      const result = JSON.parse(text);
+      if (result.success || result.status === 'online') {
+        record._synced = true;
+        localStorage.setItem('il_readings', JSON.stringify(readings));
+        updateSheetsStatus('ok');
+        return;
+      }
+    } catch(e) {}
+
+    // Se não conseguiu parsear mas recebeu resposta, assume OK
+    if (res.ok || res.status === 0) {
+      record._synced = true;
+      localStorage.setItem('il_readings', JSON.stringify(readings));
+      updateSheetsStatus('ok');
+    } else {
+      throw new Error('HTTP ' + res.status);
+    }
+
+  } catch(err) {
+    console.error('Sheets error:', err.message);
+    // Tenta via Image como fallback (não tem retorno mas não bloqueia)
+    try { new Image().src = getUrl; } catch(e2) {}
+    // Marca como enviado após 3s (assume que Image funcionou)
+    setTimeout(() => {
+      record._synced = true;
+      localStorage.setItem('il_readings', JSON.stringify(readings));
+      updateSheetsStatus('ok');
+    }, 3000);
+  }
+}
+
+async function retryQueue() {
+  const url = cycle?.sheetsUrl;
+  if (!url) return;
+  const queue = JSON.parse(localStorage.getItem('il_queue') || '[]');
+  if (!queue.length) return;
+  for (const payload of queue) {
+    const params = Object.keys(payload)
+      .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(payload[k] ?? ''))
+      .join('&');
+    try {
+      await fetch(url + '?' + params, { method:'GET', redirect:'follow' });
+    } catch(e) {
+      try { new Image().src = url + '?' + params; } catch(e2) {}
+    }
+  }
+  localStorage.removeItem('il_queue');
+  updateSheetsStatus('ok');
+}
+
+
+function buildAlertDescription(r) {
+  const parts = [];
+  if (r.embr != null && r.sp_embr != null) {
+    const d = (r.embr - r.sp_embr).toFixed(2);
+    if (Math.abs(d) >= 0.1) parts.push(`T.Embrião: ${r.embr}°F (Δ${d})`);
+  }
+  if (r.ar != null && r.sp_ar != null) {
+    const d = (r.ar - r.sp_ar).toFixed(2);
+    if (Math.abs(d) >= 0.1) parts.push(`T.Ar: ${r.ar}°F (Δ${d})`);
+  }
+  if (r.co2 != null && r.sp_co2 != null) {
+    const d = (r.co2 - r.sp_co2).toFixed(3);
+    if (Math.abs(d) >= 0.05) parts.push(`CO₂: ${r.co2}% (Δ${d})`);
+  }
+  return parts.join(' | ');
+}
+
+function updateSheetsStatus(state) {
+  const dot = document.getElementById('sheetsStatusDot');
+  const txt = document.getElementById('sheetsStatusText');
+  if (!dot || !txt) return;
+  const states = {
+    none:    { color: 'var(--muted)',  text: 'Google Sheets não configurado' },
+    ok:      { color: 'var(--accent)', text: '✓ Enviado ao Google Sheets' },
+    sending: { color: 'var(--blue)',   text: '⟳ Enviando ao Sheets...' },
+    error:   { color: 'var(--warn)',   text: '⚠ Erro — salvo para reenvio' }
+  };
+  const s = states[state] || states.none;
+  dot.style.background = s.color;
+  txt.textContent = s.text;
+  txt.style.color = s.color;
+}
+
+// ══════════════════════════════════════════════════════════════
+// EXPORT CSV
+// ══════════════════════════════════════════════════════════════
+function exportCSV() {
+  if (!readings.length) { alert('Nenhuma leitura registrada.'); return; }
+
+  const headers = [
+    'Data','Hora','Turno','Dia Ciclo','Hora Ciclo','Operador','Programa','Nº Lote','Layout',
+    'T.Embrião Real','T.Embrião SP','T.Embrião Desvio',
+    'T.Ar Real','T.Ar SP','T.Ar Desvio',
+    'CO2 Real','CO2 SP','CO2 Desvio',
+    'Umidade Real','Umidade SP',
+    'Ventilação Real','Viragem Pos','Viragem Falta Min','Viragem Prog','Viragem Total',
+    'Nível Alerta','Ação Tomada','Data Início Ciclo'
+  ];
+
+  const rows = readings.map(r => {
+    const ts = new Date(r.timestamp);
+    const devEmbr = r.embr != null && r.sp_embr != null ? (r.embr - r.sp_embr).toFixed(2) : '';
+    const devAr   = r.ar   != null && r.sp_ar   != null ? (r.ar   - r.sp_ar  ).toFixed(2) : '';
+    const devCo2  = r.co2  != null && r.sp_co2  != null ? (r.co2  - r.sp_co2 ).toFixed(3) : '';
+    return [
+      ts.toLocaleDateString('pt-BR'),
+      ts.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}),
+      r.turno_leitura ?? '',
+      r.dia_ciclo ?? '',
+      r.hora_ciclo ?? '',
+      r.operador ?? '',
+      r.programa ?? '',
+      r.num_lote ?? '',
+      r.layout ?? '',
+      r.embr ?? '', r.sp_embr ?? '', devEmbr,
+      r.ar   ?? '', r.sp_ar   ?? '', devAr,
+      r.co2  ?? '', r.sp_co2  ?? '', devCo2,
+      r.umid ?? '', r.sp_umid ?? '',
+      r.vent ?? '',
+      r.viragem_pos ?? '', r.viragem_falta_min ?? '', r.viragem_prog ?? '', r.viragem_total ?? '',
+      ['OK','ATENÇÃO','TENDÊNCIA','CRÍTICO'][r.alert_level] || 'OK',
+      `"${(r.acao||'').replace(/"/g,'""')}"`,
+      cycle?.dataInicio ?? ''
+    ].join(';');
+  });
+
+  const csv = [headers.join(';'), ...rows].join('\n');
+  const bom = '\uFEFF'; // BOM para Excel reconhecer UTF-8
+  const blob = new Blob([bom + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `INCUBALOG_U${cycle?.unidade}_INC${cycle?.inc}_${cycle?.dataInicio?.replace(/-/g,'')}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('⬇ CSV exportado');
+}
+
+// ══════════════════════════════════════════════════════════════
+// EXPORT EXCEL (XLSX via SheetJS-style HTML table)
+// ══════════════════════════════════════════════════════════════
+function exportExcel() {
+  if (!readings.length) { alert('Nenhuma leitura registrada.'); return; }
+
+  // Build HTML table that Excel opens correctly
+  const alertLabels = ['OK','ATENÇÃO','TENDÊNCIA','CRÍTICO'];
+  const alertColors = ['#e8f5e9','#fffde7','#fff3e0','#ffebee'];
+
+  let tableRows = readings.map(r => {
+    const ts = new Date(r.timestamp);
+    const lvl = r.alert_level || 0;
+    const bg = alertColors[lvl];
+    const devEmbr = r.embr != null && r.sp_embr != null ? (r.embr - r.sp_embr).toFixed(2) : '';
+    const devAr   = r.ar   != null && r.sp_ar   != null ? (r.ar   - r.sp_ar  ).toFixed(2) : '';
+    const devCo2  = r.co2  != null && r.sp_co2  != null ? (r.co2  - r.sp_co2 ).toFixed(3) : '';
+    const devEmbrColor = Math.abs(parseFloat(devEmbr)||0) >= 0.3 ? '#c62828' : Math.abs(parseFloat(devEmbr)||0) >= 0.1 ? '#e65100' : '#000';
+
+    const td = (v, extra='') => `<td style="border:1px solid #ccc;padding:4px 6px;font-size:11px;${extra}">${v ?? ''}</td>`;
+    const tdN = (v, color='#000') => `<td style="border:1px solid #ccc;padding:4px 6px;font-size:11px;text-align:right;color:${color}">${v ?? ''}</td>`;
+
+    return `<tr style="background:${bg}">
+      ${td(ts.toLocaleDateString('pt-BR'))}
+      ${td(ts.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}))}
+      ${td(r.turno_leitura||'')}
+      ${td(r.dia_ciclo??'')}
+      ${td(r.hora_ciclo??'')}
+      ${td(r.operador||'')}
+      ${td(r.programa||'')}
+      ${td(r.num_lote||'')}
+      ${tdN(r.embr||'')}
+      ${tdN(r.sp_embr||'')}
+      ${tdN(devEmbr, devEmbrColor)}
+      ${tdN(r.ar||'')}
+      ${tdN(r.sp_ar||'')}
+      ${tdN(devAr)}
+      ${tdN(r.co2||'')}
+      ${tdN(r.sp_co2||'')}
+      ${tdN(devCo2)}
+      ${tdN(r.umid||'')}
+      ${tdN(r.sp_umid||'')}
+      ${tdN(r.vent||'')}
+      ${td(r.viragem_pos||'')}
+      ${td(r.viragem_falta_min||'')}
+      ${td(r.viragem_prog||'')}
+      ${td(r.viragem_total||'')}
+      ${td(alertLabels[lvl], `font-weight:bold;color:${lvl>=3?'#c62828':lvl>=2?'#e65100':lvl>=1?'#f9a825':'#2e7d32'}`)}
+      ${td(r.acao||'', 'font-style:italic;max-width:200px')}
+      ${td(cycle?.dataInicio||'')}
+    </tr>`;
+  }).join('');
+
+  const thStyle = 'background:#1565c0;color:#fff;border:1px solid #0d47a1;padding:5px 7px;font-size:11px;white-space:nowrap;';
+  const headers = [
+    'Data','Hora','Turno','Dia','H.Ciclo','Operador','Programa','Lote',
+    'T.Embrião Real','T.Embrião SP','Desvio Embrião',
+    'T.Ar Real','T.Ar SP','Desvio Ar',
+    'CO₂ Real','CO₂ SP','Desvio CO₂',
+    'Umid Real','Umid SP','Ventilação %',
+    'Virag.Pos','Virag.Falta','Virag.Prog','Virag.Total',
+    'Alerta','Ação Tomada','Início Ciclo'
+  ].map(h => `<th style="${thStyle}">${h}</th>`).join('');
+
+  const html = `
+    <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+    <head><meta charset="UTF-8">
+    <style>
+      body { font-family: Calibri, Arial, sans-serif; }
+      table { border-collapse: collapse; width: 100%; }
+      .title { background: #0d47a1; color: #fff; font-size: 14px; font-weight: bold; padding: 10px; text-align: center; }
+    </style>
+    </head><body>
+    <div class="title">INCUBALOG — U${cycle?.unidade} · INC ${cycle?.inc} — Início: ${cycle?.dataInicio} — ${cycle?.prog}</div>
+    <br>
+    <table>
+      <thead><tr>${headers}</tr></thead>
+      <tbody>${tableRows}</tbody>
+    </table>
+    </body></html>`;
+
+  const blob = new Blob(['\uFEFF' + html], { type: 'application/vnd.ms-excel;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `INCUBALOG_U${cycle?.unidade}_INC${cycle?.inc}_${cycle?.dataInicio?.replace(/-/g,'')}.xls`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('⬇ Excel exportado');
+}
+function updateHistCount() {
+  document.getElementById('histCountLabel').textContent = `${readings.length} registro${readings.length !== 1 ? 's' : ''}`;
+}
+
+function toggleHistory() {
+  const list = document.getElementById('histList');
+  if (list.style.display === 'block') { list.style.display = 'none'; return; }
+  list.style.display = 'block';
+  renderHistory();
+}
+
+function renderHistory() {
+  const list = document.getElementById('histList');
+  if (!readings.length) { list.innerHTML = '<div class="empty-state">Nenhuma leitura registrada neste ciclo.</div>'; return; }
+
+  list.innerHTML = [...readings].reverse().slice(0, 30).map(r => {
+    const lvl = r.alert_level || 0;
+    const cls = lvl === 3 ? 'critico' : lvl >= 1 ? 'desvio' : 'ok';
+    const statusTxt = lvl === 3 ? 'CRÍTICO' : lvl === 2 ? 'TENDÊNCIA' : lvl === 1 ? 'ATENÇÃO' : 'OK';
+    const ts = new Date(r.timestamp);
+    const dev_embr = r.embr != null && r.sp_embr != null ? (r.embr - r.sp_embr).toFixed(2) : null;
+
+    return `
+    <div class="hist-item ${cls}">
+      <div class="hist-head">
+        <div class="hist-id">Dia ${r.dia_ciclo ?? '—'} · ${r.turno_leitura ?? r.hora_ciclo ?? '--'}h · ${ts.toLocaleDateString('pt-BR')} ${ts.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</div>
+        <span class="hist-status ${cls}">${statusTxt}</span>
+      </div>
+      <div class="hist-vals">
+        ${r.embr != null ? `<span class="hist-val-chip ${Math.abs(r.embr-(r.sp_embr||100))>=0.1?'dev':''}">🥚 ${r.embr}°F</span>` : ''}
+        ${r.ar != null ? `<span class="hist-val-chip">🌡 ${r.ar}°F</span>` : ''}
+        ${r.co2 != null ? `<span class="hist-val-chip">CO₂ ${r.co2}%</span>` : ''}
+        ${r.umid != null ? `<span class="hist-val-chip">💧 ${r.umid}°F</span>` : ''}
+        ${r.vent != null ? `<span class="hist-val-chip">💨 ${r.vent}%</span>` : ''}
+        ${r.viragem_pos ? `<span class="hist-val-chip">↕ Pos.${r.viragem_pos}</span>` : ''}
+        ${r.viragem_total ? `<span class="hist-val-chip">${r.viragem_total}</span>` : ''}
+        ${dev_embr != null ? `<span class="hist-val-chip dev">Δ${dev_embr}°F</span>` : ''}
+      </div>
+      ${r.acao ? `<div class="hist-action">↳ ${r.acao}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════════════
+// QR CODE SCANNER
+// ══════════════════════════════════════════════════════════════
+var qrStream = null;
+var qrDetector = null;
+var qrAnimFrame = null;
+
+async function openQrScanner() {
+  const modal  = document.getElementById('qrModal');
+  const video  = document.getElementById('qrVideo');
+  const status = document.getElementById('qrStatus');
+  modal.style.display = 'flex';
+  status.textContent = 'Iniciando câmera...';
+  try {
+    qrStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+    });
+    video.srcObject = qrStream;
+    await video.play();
+    status.textContent = 'Aponte para o QR Code da incubadora';
+    if ('BarcodeDetector' in window) {
+      qrDetector = new BarcodeDetector({ formats: ['qr_code'] });
+      scanFrameNative(video);
+    } else {
+      status.textContent = 'Carregando leitor QR...';
+      await loadQrScript('https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js');
+      status.textContent = 'Aponte para o QR Code da incubadora';
+      scanFrameFallback(video);
+    }
+  } catch(err) {
+    status.textContent = '⚠ Câmera indisponível: ' + err.message;
+  }
+}
+
+function loadQrScript(src) {
+  return new Promise(function(resolve, reject) {
+    if (document.querySelector('script[src="' + src + '"]')) { resolve(); return; }
+    var s = document.createElement('script');
+    s.src = src; s.onload = resolve; s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+async function scanFrameNative(video) {
+  if (!qrStream) return;
+  try {
+    var codes = await qrDetector.detect(video);
+    if (codes.length > 0) { processQrResult(codes[0].rawValue); return; }
+  } catch(e) {}
+  qrAnimFrame = requestAnimationFrame(function() { scanFrameNative(video); });
+}
+
+function scanFrameFallback(video) {
+  if (!qrStream) return;
+  var canvas = document.createElement('canvas');
+  var ctx = canvas.getContext('2d');
+  function tick() {
+    if (!qrStream) return;
+    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+      canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      var img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      if (typeof jsQR !== 'undefined') {
+        var code = jsQR(img.data, img.width, img.height);
+        if (code) { processQrResult(code.data); return; }
+      }
+    }
+    qrAnimFrame = requestAnimationFrame(tick);
+  }
+  tick();
+}
+
+function processQrResult(text) {
+  closeQrScanner();
+  var norm = text.toUpperCase().trim();
+  var salaMatch = norm.match(/SALA\s*(\d)/);
+  var incMatch  = norm.match(/INC\s*(\d{1,2})/);
+
+  var sala, inc;
+  if (salaMatch && incMatch) {
+    sala = salaMatch[1];
+    inc  = String(parseInt(incMatch[1])).padStart(2,'0');
+  } else if (incMatch) {
+    var n = parseInt(incMatch[1]);
+    sala = n <= 18 ? '1' : n <= 36 ? '2' : n <= 54 ? '3' : '4';
+    inc  = String(n).padStart(2,'0');
+  } else {
+    var numOnly = norm.match(/^(\d{1,2})$/);
+    if (numOnly) {
+      var n2 = parseInt(numOnly[1]);
+      sala = n2 <= 18 ? '1' : n2 <= 36 ? '2' : n2 <= 54 ? '3' : '4';
+      inc  = String(n2).padStart(2,'0');
+    } else {
+      alert('QR Code não reconhecido: ' + text + '\n\nFormato esperado: U1020-SALA3-INC38');
+      return;
+    }
+  }
+
+  var salaEl = document.getElementById('cfgSala');
+  if (salaEl) { salaEl.value = sala; updateIncubadoraList(sala); }
+  setTimeout(function() {
+    var incEl = document.getElementById('cfgIncubadora');
+    if (incEl) incEl.value = inc;
+    showToast('✓ QR: Sala ' + sala + ' · Inc. ' + inc);
+  }, 150);
+}
+
+function closeQrScanner() {
+  if (qrAnimFrame) { cancelAnimationFrame(qrAnimFrame); qrAnimFrame = null; }
+  if (qrStream) { qrStream.getTracks().forEach(function(t) { t.stop(); }); qrStream = null; }
+  document.getElementById('qrModal').style.display = 'none';
+}
+
+function gerarEtiquetasQR() {
+  var win = window.open('', '_blank');
+  var h = '<html><head><title>Etiquetas QR INCUBALOG U1020</title>';
+  h += '<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>';
+  h += '<style>body{font-family:monospace;padding:16px}';
+  h += '.grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}';
+  h += '.e{text-align:center;padding:8px;border:1px solid #333;border-radius:6px;page-break-inside:avoid}';
+  h += '.e p{font-size:10px;margin:3px 0;font-weight:bold}';
+  h += '@media print{.btn{display:none}}</style></head><body>';
+  h += '<h2 style="font-size:13px;margin-bottom:12px">INCUBALOG — Etiquetas QR U1020 (72 Incubadoras)</h2>';
+  h += '<button class="btn" onclick="window.print()" style="margin-bottom:12px;padding:6px 16px;cursor:pointer">🖨 Imprimir</button>';
+  h += '<div class="grid">';
+  for (var i = 1; i <= 72; i++) {
+    var s = i<=18?1:i<=36?2:i<=54?3:4;
+    var n = String(i).padStart(2,'0');
+    h += '<div class="e"><div id="q'+i+'"></div><p>INC '+n+'</p><p>SALA '+s+'</p></div>';
+  }
+  h += '</div><script>window.onload=function(){';
+  for (var i = 1; i <= 72; i++) {
+    var s = i<=18?1:i<=36?2:i<=54?3:4;
+    var n = String(i).padStart(2,'0');
+    h += 'new QRCode(document.getElementById("q'+i+'"),{text:"U1020-SALA'+s+'-INC'+n+'",width:80,height:80});';
+  }
+  h += '}<\/script></body></html>';
+  win.document.write(h); win.document.close();
+}
+
+// ══════════════════════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════════════════════
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// Inicia quando o DOM estiver pronto
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', function() {
+    init();
+    var salaEl = document.getElementById('cfgSala');
+    if (salaEl) {
+      salaEl.addEventListener('change', function() {
+        updateIncubadoraList(this.value);
+      });
+    }
+  });
+} else {
+  init();
+  var salaEl = document.getElementById('cfgSala');
+  if (salaEl) {
+    salaEl.addEventListener('change', function() {
+      updateIncubadoraList(this.value);
+    });
+  }
+}
+</script>
+</body>
+</html>
